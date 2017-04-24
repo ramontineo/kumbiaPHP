@@ -1,0 +1,162 @@
+<!-- =====  inclucion de estilos  ===== -->
+<?php View::partial('head'); ?>
+<!-- ================================== -->
+    <body class="hold-transition login-page">
+<div class="login-box">
+    <!--div class="login-logo">
+      <a href="index.php"><span class="logo-lg"><b>Sisop</b>2020</span></a>
+    </div-->
+    <?php echo Html::img('dist/img/logo_salud_visual_2020.jpg', 'Logo', 'style = "width: 100%"'); ?>
+    <!-- /.login-logo -->
+    <div class="login-box-body">
+        <p class="login-box-msg">Iniciar sesión</p>
+
+        <form>
+            <div class="form-group has-feedback">
+                <input type="text" class="form-control" placeholder="Usuario" name="login" id="login" >
+                <span class="glyphicon glyphicon-user form-control-feedback"></span>
+            </div>
+            <div class="form-group has-feedback">
+                <input type="password" class="form-control" placeholder="Contraseña" name="password" id="password" >
+                <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+            </div>
+            <div class="row">
+                <div class="col-xs-8">
+                    <div class="checkbox icheck">
+                        <!--label>
+                          <input type="checkbox"> Remember Me
+                        </label-->
+                    </div>
+                </div>
+                <!-- /.col -->
+                <div class="col-xs-4">
+                    <button type="button" class="btn btn-primary btn-block btn-flat" id="enviar" name="enviar">Aceptar</button>
+                </div>
+                <!-- /.col -->
+            </div>
+        </form>
+
+        <!--a href="#">Olvidó su contraseña</a--><br>
+
+        <!-----                MODAL DE MENSAJES DE SISTEMA             -->
+        <div id="modalMsj" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="modalMsjLabel" aria-hidden="true">
+            <div class="modal-dialog modal-md">
+                <div class="modal-content">
+                    <div class="modal-header top">
+                        <h4 id="modal_header" class="modal-title"></h4>
+                    </div>
+                    <div class="modal-body">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <!-- /.login-box-body -->
+</div>
+<!-- /.login-box -->
+
+<!-- jQuery 2.2.3 -->
+<?= Tag::js('plugins/jQuery/jquery-2.2.3.min'); ?>
+<!-- Bootstrap 3.3.6 -->
+<?= Tag::js('bootstrap/js/bootstrap.min'); ?>
+<!-- iCheck -->
+<?= Tag::js('plugins/iCheck/icheck.min'); ?>
+<script>
+    $(function () {
+        
+        $("#enviar").click(function () {
+
+            login = $('#login').val();
+
+            if (login == null || login.length == 0 || /^\s+$/.test(login))
+            {
+                $('#login').val('');
+                var tipo_mensaje = 0;
+                var mensaje = "Debe ingresar el login";
+                alertModal(tipo_mensaje, mensaje);
+                //event.preventDefault();
+                return false;
+            }
+
+            password = $('#password').val();
+
+            if (password == null || password.length == 0 || /^\s+$/.test(password))
+            {
+                $('#password').val('');
+                var tipo_mensaje = 0;
+                var mensaje = "Debe ingresar el password";
+                alertModal(tipo_mensaje, mensaje);
+                //event.preventDefault();
+                return false;
+            }
+
+            $.ajax({
+
+                data: {
+                    login: login,
+                    password: password,
+                    accion: 'LOGIN'
+                },
+                url: 'ajax/login.php',
+                method: 'post',
+                success: function (response) {
+                    alert(response.respuesta);
+                    if (response.respuesta == "error") {
+                        var tipo_mensaje = 1;
+                        var mensaje = 'response.mensaje';
+                        alertModal(tipo_mensaje, mensaje);
+                    } else {
+                        location.href = 'principal.php';
+                    }
+                },
+                error: function () {
+                    $('#modalProgress').modal('hide');
+                    var tipo_mensaje = 0;
+                    var mensaje = "error general de sistema, intente mas tarde.";
+                    alertModal(tipo_mensaje, mensaje);
+                }
+            }); //$.ajax
+        });
+    });
+
+    function alertModal(tipo_mensaje, mensaje)
+    {
+        switch (tipo_mensaje)
+        {
+            case 0:
+                titulo_mensaje = "Mensaje de Error";
+                clase_mensaje = "btn-danger active";
+                break;
+
+            case 1:
+                titulo_mensaje = "Información";
+                clase_mensaje = "bg-primary";
+                break;
+
+        }
+
+        $(".modal-header").addClass(clase_mensaje);
+        $('#modal_header').html(titulo_mensaje);
+        $(".modal-body").html(mensaje);
+        $('#modalMsj').modal("show");
+
+    }
+
+
+</script>
+    </body>
+
+
+<?php echo Form::open() ?>
+<input name="mode" type="hidden" value="auth">
+
+<label for="login">Usuario:</label>
+<?php echo Form::text('login') ?>
+
+<label for="password">Clave:</label>
+<?php echo Form::pass('password') ?>
+<?php echo Form::close() ?>
+<?php echo Form::submit('login')?>
+
